@@ -2,7 +2,7 @@ import datetime
 
 from sqlmodel import Column, DateTime, Field, func
 
-import reflex as rxx
+import reflex as rx
 
 
 class AuthSession(

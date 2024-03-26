@@ -8,7 +8,7 @@ import datetime
 
 from sqlmodel import select
 
-import reflex as rxx
+import reflex as rx
 
 from .auth_session import AuthSession
 from .user import User

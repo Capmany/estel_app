@@ -1,7 +1,7 @@
 from passlib.context import CryptContext
 from sqlmodel import Field
 
-import reflex as rxx
+import reflex as rx
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

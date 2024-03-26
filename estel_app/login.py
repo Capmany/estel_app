@@ -1,5 +1,5 @@
 """Login page and authentication logic."""
-import reflex as rxx
+import reflex as rx
 from sqlmodel import select
 
 from .base_state import State
