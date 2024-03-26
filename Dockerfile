@@ -27,6 +27,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 CMD reflex init
 CMD reflex db init
 CMD reflex db makemigrations --message 'something changed'
-CMD reflex db migrate
+#CMD reflex db migrate
 #CMD [ -d alembic ] && reflex db migrate
+CMD reflex run --env prod --backend-only
+
+CMD reflex db migrate
 CMD reflex run --env prod --backend-only
