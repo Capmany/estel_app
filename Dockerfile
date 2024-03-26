@@ -25,6 +25,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Per desplegar només el backend
 CMD reflex init
-CMD reflex db makemigrations
-CMD [ -d alembic ] && reflex db migrate
+CMD reflex db init
+CMD reflex db makemigrations --message 'something changed'
+CMD reflex db migrate
+#CMD [ -d alembic ] && reflex db migrate
 CMD reflex run --env prod --backend-only
