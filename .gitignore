@@ -1,0 +1,9 @@
+*.db
+*.py[cod]
+.venv
+.web
+__pycache__/
+estel_app/__pycache__/
+alembic
+alembic.ini
+reflex.db

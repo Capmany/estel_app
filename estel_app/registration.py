@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import AsyncGenerator
 
-import reflex as rx
+import reflex as rxx
 
 from sqlmodel import select
 
