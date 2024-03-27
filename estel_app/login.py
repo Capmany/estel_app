@@ -1,4 +1,4 @@
-"""Login page and authentication logic."""
+"""Login page and authentication logic. """
 import reflex as rx
 from sqlmodel import select
 
