@@ -17,13 +17,12 @@ class SupabaseAPI:
                 self.SUPABASE_URL, self.SUPABASE_KEY
             )
 
+    # Retorna un diccionari amb tots els usuaris
     def users(self) -> list[User_row]:
 
         response = self.supabase.table(
             "user").select("*").order("username", desc=True).execute()
-
         user_data = []
-
         if len(response.data) > 0:
             for user_item in response.data:
                 user_data.append(
@@ -34,6 +33,5 @@ class SupabaseAPI:
                         enabled=user_item["enabled"]
                     )
                 )
-
         return user_data
     
