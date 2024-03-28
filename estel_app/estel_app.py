@@ -5,6 +5,8 @@ from .base_state import State
 from .login import require_login
 from .registration import registration_page as registration_page
 
+from estel_app.api.api import hello, users
+
 
 def index() -> rx.Component:
     """Render the index page.
@@ -46,3 +48,6 @@ def protected() -> rx.Component:
 app = rx.App(theme=rx.theme(has_background=True, accent_color="orange"))
 app.add_page(index)
 app.add_page(protected)
+
+app.api.add_api_route("/hola/{nom}", hello)
+app.api.add_api_route("/users", users)
