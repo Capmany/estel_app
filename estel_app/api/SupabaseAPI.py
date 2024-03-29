@@ -34,4 +34,23 @@ class SupabaseAPI:
                     )
                 )
         return user_data
+    # Comproba si un username existeix. SI existeix, retorna les seves dades
+    def exist_username(self, username: str) -> User_row:
+        response = self.supabase.table("user").select("*").eq("username", username).execute()
+        if len(response.data) > 0:
+            user_item = response.data[0]
+            return User_row(id=user_item["id"], username=user_item["username"], password_hash=user_item["password_hash"], enabled=user_item["enabled"])
+        return None
+    # Comproba si un user_id existeix. SI existeix, retorna les seves dades
+    def exist_user_id(self, user_id: str) -> User_row:
+        response = self.supabase.table("user").select("*").eq("id", user_id).execute()
+        if len(response.data) > 0:
+            user_item = response.data[0]
+            return User_row(id=user_item["id"], username=user_item["username"], password_hash=user_item["password_hash"], enabled=user_item["enabled"])
+        return None
+    # Donar d'alta un nou usuari. Retorna el registre insertat
+    def new_user(self, user: User_row) -> dict:
+        response = self.supabase.table('user').insert({"username": user.username, "password_hash": user.password_hash, "enabled": user.enabled}).execute()
+        return response.data
     
+

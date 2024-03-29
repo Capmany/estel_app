@@ -1,9 +1,12 @@
 """Login page and authentication logic. """
 import reflex as rx
-from sqlmodel import select
+from estel_app.api.api import SUPABASE_API
+from estel_app.model.User_row import User_row
+
+#from sqlmodel import select
 
 from .base_state import State
-from .user import User
+#from .user import User
 
 
 LOGIN_ROUTE = "/login"
@@ -25,14 +28,12 @@ class LoginState(State):
         self.error_message = ""
         username = form_data["username"]
         password = form_data["password"]
-        with rx.session() as session:
-            user = session.exec(
-                select(User).where(User.username == username)
-            ).one_or_none()
+        user = SUPABASE_API.exist_username(username)
+
         if user is not None and not user.enabled:
             self.error_message = "This account is disabled."
             return rx.set_value("password", "")
-        if user is None or not user.verify(password):
+        if user is None or password is None or not user.verify(password):
             self.error_message = "There was a problem logging in, please try again."
             return rx.set_value("password", "")
         if (

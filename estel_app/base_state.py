@@ -6,16 +6,14 @@ access it for verifying access to event handlers and computed vars.
 """
 import datetime
 
-from sqlmodel import select
-
 import reflex as rx
-
-from .auth_session import AuthSession
-from .user import User
+from estel_app.api.api import SUPABASE_API
+from estel_app.model.User_row import User_row
+from estel_app.model.Authsession_row import Authsession_row
 
 
 AUTH_TOKEN_LOCAL_STORAGE_KEY = "_auth_token"
-DEFAULT_AUTH_SESSION_EXPIRATION_DELTA = datetime.timedelta(days=7)
+DEFAULT_AUTH_SESSION_EXPIRATION_DELTA = datetime.timedelta(minutes=1) #(days=7)
 
 
 class State(rx.State):
@@ -23,26 +21,21 @@ class State(rx.State):
     auth_token: str = rx.LocalStorage(name=AUTH_TOKEN_LOCAL_STORAGE_KEY)
 
     @rx.cached_var
-    def authenticated_user(self) -> User:
+    def authenticated_user(self) -> User_row:
         """The currently authenticated user, or a dummy user if not authenticated.
 
         Returns:
             A User instance with id=-1 if not authenticated, or the User instance
             corresponding to the currently authenticated user.
         """
-        with rx.session() as session:
-            result = session.exec(
-                select(User, AuthSession).where(
-                    AuthSession.session_id == self.auth_token,
-                    AuthSession.expiration
-                    >= datetime.datetime.now(datetime.timezone.utc),
-                    User.id == AuthSession.user_id,
-                ),
-            ).first()
-            if result:
-                user, session = result
-                return user
-        return User(id=-1)  # type: ignore
+        response = SUPABASE_API.supabase.table("authsession").select("*").eq("session_id", self.auth_token).gte("expiration", datetime.datetime.now(datetime.timezone.utc)).limit(1).execute()
+        print(response.data)
+
+        if len(response.data) > 0:
+            return SUPABASE_API.exist_user_id(response.data[0]["user_id"])
+        return User_row(id=-1, username="", password_hash="", enabled=False)
+    
+
 
     @rx.cached_var
     def is_authenticated(self) -> bool:
@@ -55,12 +48,7 @@ class State(rx.State):
 
     def do_logout(self) -> None:
         """Destroy AuthSessions associated with the auth_token."""
-        with rx.session() as session:
-            for auth_session in session.exec(
-                select(AuthSession).where(AuthSession.session_id == self.auth_token)
-            ).all():
-                session.delete(auth_session)
-            session.commit()
+        response = SUPABASE_API.supabase.table("authsession").delete().eq("session_id", self.auth_token).execute()
         self.auth_token = self.auth_token
 
     def _login(
@@ -82,13 +70,8 @@ class State(rx.State):
         if user_id < 0:
             return
         self.auth_token = self.auth_token or self.router.session.client_token
-        with rx.session() as session:
-            session.add(
-                AuthSession(  # type: ignore
-                    user_id=user_id,
-                    session_id=self.auth_token,
-                    expiration=datetime.datetime.now(datetime.timezone.utc)
-                    + expiration_delta,
-                )
-            )
-            session.commit()
+
+        iso_time = (datetime.datetime.now(datetime.timezone.utc)+expiration_delta).strftime("%Y-%m-%dT%H:%M:%SZ") 
+        #print(datetime.datetime.fromisoformat(iso_time))
+        response = SUPABASE_API.supabase.table('authsession').insert({"user_id": user_id, "session_id": self.auth_token, "expiration": iso_time}).execute()
+
