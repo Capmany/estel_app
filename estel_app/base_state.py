@@ -13,7 +13,7 @@ from estel_app.model.Authsession_row import Authsession_row
 
 
 AUTH_TOKEN_LOCAL_STORAGE_KEY = "_auth_token"
-DEFAULT_AUTH_SESSION_EXPIRATION_DELTA = datetime.timedelta(minutes=1) #(days=7)
+DEFAULT_AUTH_SESSION_EXPIRATION_DELTA = datetime.timedelta(days=7)
 
 
 class State(rx.State):

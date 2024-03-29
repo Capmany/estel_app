@@ -33,9 +33,7 @@ class RegistrationState(State):
             self.error_message = "Username cannot be empty"
             yield rx.set_focus("username")
             return
-#            existing_user = session.exec(
-#                select(User).where(User.username == username)
-#            ).one_or_none()
+
         user = SUPABASE_API.exist_username(username)
         if user is not None:
             self.error_message = (
@@ -58,12 +56,6 @@ class RegistrationState(State):
         # Create the new user and add it to the database.
         SUPABASE_API.new_user(User_row(id=1, username=username, password_hash=User_row.hash_password(password), enabled=True))
 
-#            new_user = User()  # type: ignore
-#            new_user.username = username
-#            new_user.password_hash = User.hash_password(password)
-#            new_user.enabled = True
-#            session.add(new_user)
-#            session.commit()
         # Set success and redirect to login page after a brief delay.
         self.error_message = ""
         self.success = True
