@@ -58,6 +58,12 @@ class State(rx.State):
         self.set_cua_info()
         return {"message": "Webhook received!"}
 
+    @app.api.get("/web_cua")
+    def nyx(self):
+        print("Dunqui net")
+        self.set_cua_info()
+
+
     @rx.cached_var
     def authenticated_user(self) -> User_row:
         """The currently authenticated user, or a dummy user if not authenticated.
