@@ -51,10 +51,11 @@ class State(rx.State):
     cua_info: list[Cua_row]
 
     @app.api.post("/web_cua")
-    async def receive_webhook(request: Request):
+    async def receive_webhook(self,request: Request):
         data = await request.json()
         # Process your data here
         print("Dunqui net")
+        self.set_cua_info()
         return {"message": "Webhook received!"}
 
     @rx.cached_var
