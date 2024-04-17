@@ -5,20 +5,47 @@ Authentication data is stored in the base State class so that all substates can
 access it for verifying access to event handlers and computed vars.
 """
 import datetime
+import os
 
 import reflex as rx
-from estel_app.api.api import SUPABASE_API
+from estel_app.api.api import SUPABASE_API, cua_lista
 from estel_app.model.User_row import User_row
-from estel_app.model.Authsession_row import Authsession_row
+from estel_app.model.Cua_row import Cua_row
+#from estel_app.model.Authsession_row import Authsession_row
 
+from realtime.connection import Socket
+from supabase import create_client, Client
 
 AUTH_TOKEN_LOCAL_STORAGE_KEY = "_auth_token"
 DEFAULT_AUTH_SESSION_EXPIRATION_DELTA = datetime.timedelta(days=7)
 
 
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+
+"""
+#def __init__(self) -> None:
+#async def inici():
+print("33")
+URL = f"wss://{SUPABASE_URL}.supabase.co/realtime/v1/websocket?apikey={SUPABASE_KEY}&vsn=1.0.0"
+s = Socket(URL)
+s.connect()
+channel_1 = s.set_channel("realtime:*")
+channel_1.join().on("UPDATE", State.set_cua_info)
+s.listen()
+    #State.set_cua_info()
+
+#inici()
+"""
+
+
+
 class State(rx.State):
     # The auth_token is stored in local storage to persist across tab and browser sessions.
     auth_token: str = rx.LocalStorage(name=AUTH_TOKEN_LOCAL_STORAGE_KEY)
+
+    cua_info: list[Cua_row]
+
 
     @rx.cached_var
     def authenticated_user(self) -> User_row:
@@ -29,7 +56,7 @@ class State(rx.State):
             corresponding to the currently authenticated user.
         """
         response = SUPABASE_API.supabase.table("authsession").select("*").eq("session_id", self.auth_token).gte("expiration", datetime.datetime.now(datetime.timezone.utc)).limit(1).execute()
-        print(response.data)
+        #print(response.data)
 
         if len(response.data) > 0:
             return SUPABASE_API.exist_user_id(response.data[0]["user_id"])
@@ -46,12 +73,12 @@ class State(rx.State):
         """
         return self.authenticated_user.id >= 0
 
-    def do_logout(self) -> None:
+    async def do_logout(self) -> None:
         """Destroy AuthSessions associated with the auth_token."""
         response = SUPABASE_API.supabase.table("authsession").delete().eq("session_id", self.auth_token).execute()
         self.auth_token = self.auth_token
 
-    def _login(
+    async def _login(
         self,
         user_id: int,
         expiration_delta: datetime.timedelta = DEFAULT_AUTH_SESSION_EXPIRATION_DELTA,
@@ -74,4 +101,9 @@ class State(rx.State):
         iso_time = (datetime.datetime.now(datetime.timezone.utc)+expiration_delta).strftime("%Y-%m-%dT%H:%M:%SZ") 
         #print(datetime.datetime.fromisoformat(iso_time))
         response = SUPABASE_API.supabase.table('authsession').insert({"user_id": user_id, "session_id": self.auth_token, "expiration": iso_time}).execute()
+
+    async def set_cua_info(self):
+        self.cua_info = await cua_lista()
+        #print(self.cua_info)
+
 

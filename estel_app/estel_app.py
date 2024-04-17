@@ -5,7 +5,8 @@ from .base_state import State
 from .login import require_login
 from .registration import registration_page as registration_page
 
-from estel_app.api.api import hello, users
+from estel_app.api.api import hello, users, cua_lista, cua_web
+from estel_app.components.cua_data import cua_data
 
 
 def index() -> rx.Component:
@@ -19,9 +20,27 @@ def index() -> rx.Component:
         rx.vstack(
             rx.heading("Welcome to my homepage!", font_size="2em"),
             rx.link("Protected Page", href="/protected"),
+
+            rx.cond(
+                State.cua_info,
+                rx.vstack(
+                    rx.text("Destacado"),
+                    rx.flex(
+                        rx.foreach(
+                            State.cua_info,
+                             cua_data
+                        ),
+                        flex_direction=["column", "row"],
+                        spacing="2"
+                    ),
+                    spacing="4",
+                    on_mount=State.set_cua_info
+                )
+            ),
+
             spacing="2",
             padding_top="10%",
-            align_items="center"
+            align_items="center",
         ),
     )
 
@@ -51,3 +70,6 @@ app.add_page(protected)
 
 app.api.add_api_route("/hola/{nom}", hello)
 app.api.add_api_route("/users", users)
+app.api.add_api_route("/cua", cua_lista)
+
+app.api.add_api_route("/web_cua", cua_web,  methods=["POST"])
