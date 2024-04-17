@@ -15,6 +15,8 @@ from estel_app.model.Cua_row import Cua_row
 
 from realtime.connection import Socket
 from supabase import create_client, Client
+from fastapi import Request
+
 
 AUTH_TOKEN_LOCAL_STORAGE_KEY = "_auth_token"
 DEFAULT_AUTH_SESSION_EXPIRATION_DELTA = datetime.timedelta(days=7)
@@ -38,6 +40,8 @@ s.listen()
 #inici()
 """
 
+app = rx.App(theme=rx.theme(has_background=True, accent_color="orange"))
+
 
 
 class State(rx.State):
@@ -46,6 +50,12 @@ class State(rx.State):
 
     cua_info: list[Cua_row]
 
+    @app.api.post("/web_cua")
+    async def receive_webhook(request: Request):
+        data = await request.json()
+        # Process your data here
+        print("Dunqui net")
+        return {"message": "Webhook received!"}
 
     @rx.cached_var
     def authenticated_user(self) -> User_row:

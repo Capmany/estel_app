@@ -72,4 +72,4 @@ app.api.add_api_route("/hola/{nom}", hello)
 app.api.add_api_route("/users", users)
 app.api.add_api_route("/cua", cua_lista)
 
-app.api.add_api_route("/web_cua", cua_web,  methods=["POST"])
+
