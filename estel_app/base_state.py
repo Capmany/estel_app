@@ -111,6 +111,7 @@ class State(rx.State):
         #print(datetime.datetime.fromisoformat(iso_time))
         response = SUPABASE_API.supabase.table('authsession').insert({"user_id": user_id, "session_id": self.auth_token, "expiration": iso_time}).execute()
 
+    """
     @rx.background
     async def set_cua_info(self):
         async with self:
@@ -126,6 +127,10 @@ class State(rx.State):
                 #print(self.cua_info)
             async with self:
                 self.bucle = False
+    """
+
+    async def set_cua_info(self):
+        self.cua_info = SUPABASE_API.cua_list()
 
     def pag_protegida(self):
         self.bucle = False
