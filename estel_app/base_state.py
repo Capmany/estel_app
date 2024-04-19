@@ -48,13 +48,13 @@ class State(rx.State):
     # The auth_token is stored in local storage to persist across tab and browser sessions.
     auth_token: str = rx.LocalStorage(name=AUTH_TOKEN_LOCAL_STORAGE_KEY)
 
-    cua_info: list[Cua_row]
+    #cua_info: list[Cua_row]
 
     bucle = False
     
     @rx.var
-    def post_web_cua(self):
-        return SUPABASE_API.POST_web_cua
+    def post_web_cua(self) -> str:
+        return f"post nº: {SUPABASE_API.POST_web_cua}"
     
     @rx.cached_var
     def authenticated_user(self) -> User_row:
@@ -129,8 +129,14 @@ class State(rx.State):
                 self.bucle = False
     """
 
+    @rx.var
+    def cua_info(self) -> list[Cua_row]:
+        return SUPABASE_API.cua_list()
+
+    """
     async def set_cua_info(self):
         self.cua_info = SUPABASE_API.cua_list()
+    """
 
     def pag_protegida(self):
         self.bucle = False

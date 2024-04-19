@@ -17,7 +17,8 @@ class StateApp(rx.State):
         print("Que pasa")
 
 
-@rx.page(on_load=State.set_cua_info)
+#@rx.page(on_load=State.set_cua_info)
+@rx.page()
 def index() -> rx.Component:
     """Render the index page.
 
@@ -90,7 +91,7 @@ app.api.add_api_route("/cua", cua_lista)
 
 @app.api.post("/web_cua")
 def nyx():
-    SUPABASE_API.POST_web_cua = "SETH"
+    SUPABASE_API.POST_web_cua += 1
     print("Dunqui net")
     #self.set_cua_info()
     return "Xavier"

@@ -8,7 +8,7 @@ from estel_app.model.Cua_row import Cua_row
 
 class SupabaseAPI:
 
-    POST_web_cua = "DUNQUI"
+    POST_web_cua = 0
 
     dotenv.load_dotenv()
 
