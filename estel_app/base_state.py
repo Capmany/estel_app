@@ -6,6 +6,7 @@ access it for verifying access to event handlers and computed vars.
 """
 import datetime
 import os
+import asyncio
 
 import reflex as rx
 from estel_app.api.api import SUPABASE_API, cua_lista
@@ -49,8 +50,12 @@ class State(rx.State):
 
     cua_info: list[Cua_row]
 
-
-
+    bucle = False
+    
+    @rx.var
+    def post_web_cua(self):
+        return SUPABASE_API.POST_web_cua
+    
     @rx.cached_var
     def authenticated_user(self) -> User_row:
         """The currently authenticated user, or a dummy user if not authenticated.
@@ -106,8 +111,24 @@ class State(rx.State):
         #print(datetime.datetime.fromisoformat(iso_time))
         response = SUPABASE_API.supabase.table('authsession').insert({"user_id": user_id, "session_id": self.auth_token, "expiration": iso_time}).execute()
 
+    @rx.background
     async def set_cua_info(self):
-        self.cua_info = await cua_lista()
-        #print(self.cua_info)
+        async with self:
+            if self.bucle: return
+            self.bucle = True
+            for i in range(500):
+                async with self:
+                    await asyncio.sleep(0.5)
+                    self.cua_info = SUPABASE_API.cua_list()
+                    print(f"Xavier -> {i}")
+                    if self.bucle == False: break
+                    yield
+                #print(self.cua_info)
+            async with self:
+                self.bucle = False
+
+    def pag_protegida(self):
+        self.bucle = False
+
 
 

@@ -14,6 +14,3 @@ async def users() -> list[User_row]:
 async def cua_lista() -> list[Cua_row]:
     return SUPABASE_API.cua_list()
 
-async def cua_web():
-    print("Dunqui")
-    #return SUPABASE_API.cua_list()

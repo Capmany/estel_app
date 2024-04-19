@@ -1,15 +1,23 @@
 """Main app module to demo local authentication."""
 import reflex as rx
 
-from .base_state import State
+from .base_state import State, SUPABASE_API, SUPABASE_URL, SUPABASE_KEY
 from .login import require_login
 from .registration import registration_page as registration_page
 
-from estel_app.api.api import hello, users, cua_lista, cua_web
+from estel_app.api.api import hello, users, cua_lista
 from estel_app.components.cua_data import cua_data
 from fastapi import Request
 
 
+
+class StateApp(rx.State):
+
+    def prova(self):
+        print("Que pasa")
+
+
+@rx.page(on_load=State.set_cua_info)
 def index() -> rx.Component:
     """Render the index page.
 
@@ -21,6 +29,13 @@ def index() -> rx.Component:
         rx.vstack(
             rx.heading("Welcome to my homepage!", font_size="2em"),
             rx.link("Protected Page", href="/protected"),
+            rx.button("botó", on_click=State.pag_protegida),
+
+            rx.heading(f"POST: {State.post_web_cua}", font_size="2em"),
+
+            #rx.script("import { createClient } from '@supabase/supabase-js'"),
+            #rx.script(f"const supabase = createClient({SUPABASE_URL}, {SUPABASE_KEY})"),
+            #rx.script("supabase.channel('todos').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'todos' }, handleInserts).subscribe()"),
 
             rx.cond(
                 State.cua_info,
@@ -35,7 +50,7 @@ def index() -> rx.Component:
                         spacing="2"
                     ),
                     spacing="4",
-                    on_mount=State.set_cua_info
+                    #on_mount=State.set_cua_info
                 )
             ),
 
@@ -73,12 +88,14 @@ app.api.add_api_route("/hola/{nom}", hello)
 app.api.add_api_route("/users", users)
 app.api.add_api_route("/cua", cua_lista)
 
-@app.api.get("/web_cua")
-async def nyx():
-    State.set_cua_info()
+@app.api.post("/web_cua")
+def nyx():
+    SUPABASE_API.POST_web_cua = "SETH"
     print("Dunqui net")
     #self.set_cua_info()
+    return "Xavier"
 
+"""
 @app.api.post("/web_cua")
 async def receive_webhook(request: Request):
     data = await request.json()
@@ -86,6 +103,7 @@ async def receive_webhook(request: Request):
     print("Dunqui net -> 33")
     State.set_cua_info()
     #return {"message": "Webhook received!"}
+"""
 
 
 #app = rx.App(theme=rx.theme(has_background=True, accent_color="orange"))

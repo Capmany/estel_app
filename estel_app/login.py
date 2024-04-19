@@ -60,7 +60,7 @@ class LoginState(State):
             return rx.redirect(self.redirect_to or "/")
 
 
-@rx.page(route=LOGIN_ROUTE)
+@rx.page(route=LOGIN_ROUTE, on_load=State.set_bucle(False))
 def login_page() -> rx.Component:
     """Render the login page.
 
