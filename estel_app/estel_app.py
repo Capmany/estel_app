@@ -94,7 +94,7 @@ def nyx():
     SUPABASE_API.POST_web_cua += 1
     print("Dunqui net")
     #self.set_cua_info()
-    return "Xavier"
+    return SUPABASE_API.POST_web_cua
 
 """
 @app.api.post("/web_cua")
