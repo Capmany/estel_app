@@ -9,11 +9,13 @@ from estel_app.model.Cua_row import Cua_row
 class SupabaseAPI:
 
     POST_web_cua = 0
+    POST_rebut = False
 
     dotenv.load_dotenv()
 
     SUPABASE_URL = os.environ.get("SUPABASE_URL")
     SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+
 
     def __init__(self) -> None:
         if self.SUPABASE_URL != None and self.SUPABASE_KEY != None:

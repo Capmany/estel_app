@@ -17,8 +17,8 @@ class StateApp(rx.State):
         print("Que pasa")
 
 
-#@rx.page(on_load=State.set_cua_info)
-@rx.page()
+@rx.page(on_load=State.set_cua_info)
+#@rx.page()
 def index() -> rx.Component:
     """Render the index page.
 
@@ -30,7 +30,12 @@ def index() -> rx.Component:
         rx.vstack(
             rx.heading("Welcome to my homepage!", font_size="2em"),
             rx.link("Protected Page", href="/protected"),
-            rx.button("botó", on_click=State.pag_protegida),
+
+            rx.hstack(
+                rx.button("Seqüències preestablertes", on_click=State.set_bucle(False)),
+                rx.button("Disenyar seqüències", on_click=State.set_bucle(False)),
+                spacing= "4"
+            ),
 
             rx.heading(f"POST: {State.post_web_cua}", font_size="2em"),
 
@@ -89,22 +94,15 @@ app.api.add_api_route("/hola/{nom}", hello)
 app.api.add_api_route("/users", users)
 app.api.add_api_route("/cua", cua_lista)
 
+
 @app.api.post("/web_cua")
 def nyx():
     SUPABASE_API.POST_web_cua += 1
+    SUPABASE_API.POST_rebut = True
     print("Dunqui net")
+    SUPABASE_API.estat.pag_protegida()
     #self.set_cua_info()
     return SUPABASE_API.POST_web_cua
-
-"""
-@app.api.post("/web_cua")
-async def receive_webhook(request: Request):
-    data = await request.json()
-    # Process your data here
-    print("Dunqui net -> 33")
-    State.set_cua_info()
-    #return {"message": "Webhook received!"}
-"""
 
 
 #app = rx.App(theme=rx.theme(has_background=True, accent_color="orange"))

@@ -6,13 +6,13 @@ access it for verifying access to event handlers and computed vars.
 """
 import datetime
 import os
+import dotenv
 import asyncio
 
 import reflex as rx
 from estel_app.api.api import SUPABASE_API, cua_lista
 from estel_app.model.User_row import User_row
 from estel_app.model.Cua_row import Cua_row
-#from estel_app.model.Authsession_row import Authsession_row
 
 from realtime.connection import Socket
 from supabase import create_client, Client
@@ -25,20 +25,7 @@ DEFAULT_AUTH_SESSION_EXPIRATION_DELTA = datetime.timedelta(days=7)
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
-"""
-#def __init__(self) -> None:
-#async def inici():
-print("33")
-URL = f"wss://{SUPABASE_URL}.supabase.co/realtime/v1/websocket?apikey={SUPABASE_KEY}&vsn=1.0.0"
-s = Socket(URL)
-s.connect()
-channel_1 = s.set_channel("realtime:*")
-channel_1.join().on("UPDATE", State.set_cua_info)
-s.listen()
-    #State.set_cua_info()
 
-#inici()
-"""
 
 
 
@@ -52,8 +39,13 @@ class State(rx.State):
 
     bucle = False
     
+    cua_info: list[Cua_row] = SUPABASE_API.cua_list()
+
+    
     @rx.var
     def post_web_cua(self) -> str:
+        SUPABASE_API.estat = self
+        #print("POST STATE")
         return f"post nº: {SUPABASE_API.POST_web_cua}"
     
     @rx.cached_var
@@ -111,27 +103,30 @@ class State(rx.State):
         #print(datetime.datetime.fromisoformat(iso_time))
         response = SUPABASE_API.supabase.table('authsession').insert({"user_id": user_id, "session_id": self.auth_token, "expiration": iso_time}).execute()
 
-    """
     @rx.background
     async def set_cua_info(self):
         async with self:
             if self.bucle: return
             self.bucle = True
-            for i in range(500):
+            while self.bucle:
+            #for i in range(50000):
                 async with self:
-                    await asyncio.sleep(0.5)
-                    self.cua_info = SUPABASE_API.cua_list()
-                    print(f"Xavier -> {i}")
-                    if self.bucle == False: break
-                    yield
+                    #await asyncio.sleep(0.5)
+                    if SUPABASE_API.POST_rebut:
+                        self.cua_info = SUPABASE_API.cua_list()
+                        print("Actualització")  #f"Xavier -> {i}")
+                        SUPABASE_API.POST_rebut = False
+                        if self.bucle == False: break
+                        yield
                 #print(self.cua_info)
             async with self:
                 self.bucle = False
-    """
 
+    """
     @rx.var
     def cua_info(self) -> list[Cua_row]:
         return SUPABASE_API.cua_list()
+    """
 
     """
     async def set_cua_info(self):
@@ -139,7 +134,10 @@ class State(rx.State):
     """
 
     def pag_protegida(self):
-        self.bucle = False
+        print("pag protegida")
+        #yield
+        #self.set_cua_info(SUPABASE_API.cua_list())
+        #self.bucle = False
 
 
 
