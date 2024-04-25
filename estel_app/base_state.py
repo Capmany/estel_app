@@ -13,6 +13,7 @@ import reflex as rx
 from estel_app.api.api import SUPABASE_API, cua_lista
 from estel_app.model.User_row import User_row
 from estel_app.model.Cua_row import Cua_row
+from estel_app.model.Sequencia_row import Sequencia_row
 
 from realtime.connection import Socket
 from supabase import create_client, Client
@@ -39,8 +40,7 @@ class State(rx.State):
 
     bucle = False
     
-    cua_info: list[Cua_row] = SUPABASE_API.cua_list()
-
+    cua_info: list[list[str,str,str,bool]] = SUPABASE_API.cua_list()
     
     @rx.var
     def post_web_cua(self) -> str:
@@ -74,12 +74,12 @@ class State(rx.State):
         """
         return self.authenticated_user.id >= 0
 
-    async def do_logout(self) -> None:
+    def do_logout(self) -> None:
         """Destroy AuthSessions associated with the auth_token."""
         response = SUPABASE_API.supabase.table("authsession").delete().eq("session_id", self.auth_token).execute()
         self.auth_token = self.auth_token
 
-    async def _login(
+    def _login(
         self,
         user_id: int,
         expiration_delta: datetime.timedelta = DEFAULT_AUTH_SESSION_EXPIRATION_DELTA,
@@ -108,7 +108,7 @@ class State(rx.State):
         async with self:
             if self.bucle: return
             self.bucle = True
-            while self.bucle:
+            while False:# self.bucle:
             #for i in range(50000):
                 async with self:
                     #await asyncio.sleep(0.5)

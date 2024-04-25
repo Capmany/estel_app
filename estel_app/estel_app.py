@@ -1,5 +1,11 @@
 """Main app module to demo local authentication."""
 import reflex as rx
+from estel_app.pages.sequ_diseny import sequ_disseny
+from estel_app.pages.llista_sequencia import llista_sequencia
+from estel_app.pages.llista_posicions import llista_posicions
+from estel_app.pages.editar_posicio import editar_posicio
+
+from estel_app.utils_dibuix.llums_encesos import llumsEncesos
 
 from .base_state import State, SUPABASE_API, SUPABASE_URL, SUPABASE_KEY
 from .login import require_login
@@ -11,10 +17,6 @@ from fastapi import Request
 
 
 
-class StateApp(rx.State):
-
-    def prova(self):
-        print("Que pasa")
 
 
 @rx.page(on_load=State.set_cua_info)
@@ -28,42 +30,95 @@ def index() -> rx.Component:
     return rx.fragment(
         rx.color_mode.button(rx.color_mode.icon(), float="right"),
         rx.vstack(
-            rx.heading("Welcome to my homepage!", font_size="2em"),
+
+            rx.link(f"Logout {State.authenticated_user.username}", href="/", on_click=State.do_logout),
+            rx.heading("Welcome to my homepage!", font_size="2em", align="center"),
             rx.link("Protected Page", href="/protected"),
 
-            rx.hstack(
-                rx.button("Seqüències preestablertes", on_click=State.set_bucle(False)),
-                rx.button("Disenyar seqüències", on_click=State.set_bucle(False)),
-                spacing= "4"
+            rx.card(
+                rx.flex(
+                    rx.image(src="/puntaAG.png", width="100px", heht="auto"),
+                    rx.vstack(
+                        rx.text("Estel de Capmany", size="8"),
+                        rx.spacer(),
+                        rx.hstack(
+                            rx.spacer(),
+                            rx.button(
+                                rx.icon(tag="notebook-text"),
+                                "info",
+                                variant="soft",
+                                size="3"
+                            ),
+                            width="100%",
+                        ),
+                    ),
+                    spacing="4"
+                )
+            ),
+            rx.flex(
+                rx.button("Seqüències preestablertes", on_click=rx.redirect("/llumsEncesos"), width= "250px",variant="surface",size="3"),
+                rx.button("Disenyar seqüències", on_click=rx.redirect("/disseny_seq"), width= "250px",variant="surface",size="3"),
+                spacing= "4",
+                flex_wrap="wrap",
+                align="center",
+                justify="center"
             ),
 
-            rx.heading(f"POST: {State.post_web_cua}", font_size="2em"),
+            #rx.heading(f"POST: {State.post_web_cua}", font_size="2em"),
 
-            #rx.script("import { createClient } from '@supabase/supabase-js'"),
-            #rx.script(f"const supabase = createClient({SUPABASE_URL}, {SUPABASE_KEY})"),
-            #rx.script("supabase.channel('todos').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'todos' }, handleInserts).subscribe()"),
 
+            rx.heading(f"Estat de la cua per entrar a l'estel", font_size="1.5em", padding_top="2%"),
             rx.cond(
                 State.cua_info,
-                rx.vstack(
-                    rx.text("Destacado"),
-                    rx.flex(
-                        rx.foreach(
-                            State.cua_info,
-                             cua_data
+                # mostrar la taula de la cua actual
+                rx.table.root(
+                    rx.table.header(
+                        rx.table.row(
+                            rx.table.column_header_cell("usuari", justify="center"),
+                            rx.table.column_header_cell("seqüència", justify="center"),
+                            rx.table.column_header_cell("previsió", justify="center"),
+                            rx.table.column_header_cell("XXX", justify="center"),
                         ),
-                        flex_direction=["column", "row"],
-                        spacing="2"
                     ),
-                    spacing="4",
-                    #on_mount=State.set_cua_info
+                    rx.table.body(
+                        rx.foreach(
+                            State.cua_info, lambda fila: 
+                                rx.table.row(
+                                    rx.table.row_header_cell(fila[0], justify="center"),
+                                    rx.table.cell(fila[1], justify="center"),
+                                    rx.table.cell(fila[2], justify="center"),
+                                    rx.table.cell(
+                                        rx.button(
+                                            rx.icon(tag="trash-2"),
+                                            #color_scheme="red",
+                                            size="2",
+                                            
+                                        ),
+                                        justify="center",
+                                    ),
+                                    align="center",
+                                    background_color="#C4E8D1",
+                                )
+
+                        ),
+                    ),
+                    size="3",
+                    width="100%",
+                    padding_left="5px",
+                    padding_right="5px",
+                ),
+                # l'estel està lliure
+                rx.flex(
+                    rx.text("l'estel està lliure")
                 )
             ),
 
             spacing="2",
             padding_top="10%",
             align_items="center",
+            width="100%"
         ),
+        width="100%"
     )
 
 
@@ -86,9 +141,15 @@ def protected() -> rx.Component:
     )
 
 
-app = rx.App(theme=rx.theme(has_background=True, accent_color="orange"))
+app = rx.App(theme=rx.theme(has_background=True, accent_color="blue"))
 app.add_page(index)
 app.add_page(protected)
+app.add_page(sequ_disseny, route="/disseny_seq", title="Dissenyar seqüències")
+app.add_page(llista_sequencia, route="/llista_seq", title="Llista d'una seqüència")
+app.add_page(llista_posicions, route="/llista_pos", title="Posició d'una seqüència")
+app.add_page(editar_posicio, route="/editar_pos", title="Editar posició d'una seqüència")
+
+app.add_page(llumsEncesos, route="/llumsEncesos")
 
 app.api.add_api_route("/hola/{nom}", hello)
 app.api.add_api_route("/users", users)

@@ -1,5 +1,7 @@
 pip==24.0
 reflex>=0.4.8
+pillow
+numpy
 passlib
 bcrypt
 supabase

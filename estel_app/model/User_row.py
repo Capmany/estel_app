@@ -31,6 +31,7 @@ class User_row(rx.Base):
         Returns:
             True if the hashed secret matches this user's password_hash.
         """
+        #return secret == self.password_hash
         return pwd_context.verify(
             secret,
             self.password_hash,
